@@ -14,6 +14,13 @@ import OAuthSuccess from './components/OAuthSuccess';
 import { useDispatch } from 'react-redux';
 import { fetchUser } from './components/hooks/useGetUSer';
 import Tutorials from './components/Tutorials';
+import Courses from './components/Courses';
+import CourseDetail from './components/CourseDetail';
+import PrivateRoute from './components/PrivateRoute';
+import ContactUs from './components/ContactUs';
+import BlogList from './components/BlogList';
+import BlogView from './components/BlogView';
+// import BlogCard from './components/BlogCard';
 
 
 const MainLayout = ({ theme, toggleTheme }) => (
@@ -56,20 +63,24 @@ useEffect(() => {
 }, []);
 
 
-  const router = createBrowserRouter([
-    {
-      path: '/',
-      element: <MainLayout theme={theme} toggleTheme={toggleTheme} />,
-      children: [
-        { index: true, element: <Home /> },
-        { path: '/signup', element: <Signup /> },
-        { path: '/login', element: <Login /> },
-        {path:"/oauth-success", element:<OAuthSuccess />},
-        {path:"/tutorials", element:<Tutorials />},
-        
-      ],
-    },
-  ]);
+ const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <MainLayout theme={theme} toggleTheme={toggleTheme} />,
+    children: [
+      { index: true, element: <Home /> },
+      { path: '/signup', element: <Signup /> },
+      { path: '/login', element: <Login /> },
+      { path: '/oauth-success', element: <OAuthSuccess /> },
+      { path: '/tutorials', element:<PrivateRoute><Tutorials /></PrivateRoute>  },
+      { path: '/courses', element:<PrivateRoute><Courses /></PrivateRoute>  },
+      {path: '/course/:courseId', element: ( <PrivateRoute>   <CourseDetail /> </PrivateRoute> ),},
+       {path: '/contact', element: (<PrivateRoute><ContactUs /> </PrivateRoute>), },
+        { path: '/blog', element: (  <PrivateRoute><BlogList/>  </PrivateRoute>  ),  },
+          { path: '/blogs/:id', element: (  <PrivateRoute><BlogView/>  </PrivateRoute>  ),  },
+    ],
+  },
+]);
 
   return <RouterProvider router={router} />;
 };

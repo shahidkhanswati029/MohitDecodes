@@ -9,20 +9,37 @@ const createToken = (user) => {
   });
 };
 
-export const signupWithEmail = async (req, res) => {
-  const { email } = req.body;
-  try {
-    let user = await User.findOne({ email });
-    if (user) return res.status(400).json({ message: "User already exists" });
 
-    user = await User.create({ email });
+export const signupWithEmail = async (req, res) => {
+  const email = req.query.email;
+  if (!email) return res.status(400).json({ message: "Email is required" });
+
+  try {
+    // Check if user exists or create one
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      const defaultUsername = email.split("@")[0];
+      const defaultPhoto = `https://ui-avatars.com/api/?name=${defaultUsername}&background=random`;
+
+      user = await User.create({
+        email,
+        username: defaultUsername,
+        profilePhoto: defaultPhoto,
+      });
+    }
 
     const token = createToken(user);
-    res.json({ token, user ,success:true,message:"welcome to mohitdecodes" });
+
+    // Redirect with token and user info
+    const redirectUrl = `http://localhost:5173/?token=${token}&email=${user.email}&id=${user._id}&username=${encodeURIComponent(user.username)}&photo=${encodeURIComponent(user.profilePhoto)}`;
+    return res.redirect(redirectUrl);
   } catch (err) {
     res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
+
+
 // Google OAuth callback handler
 export const googleOAuth = async (req, res) => {
   const { code } = req.query;
